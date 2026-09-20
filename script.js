@@ -102,7 +102,8 @@
   /* ---------- Scroll reveal ---------- */
   var revealEls = [];
   document.querySelectorAll(".reveal").forEach(function (el) {
-    if (!staggerKids.has(el)) revealEls.push(el);
+    // .reveal-clip figures are observed via their un-clipped parent (see below)
+    if (!staggerKids.has(el) && !el.classList.contains("reveal-clip")) revealEls.push(el);
   });
   if ("IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (entries) {
@@ -110,27 +111,55 @@
         if (entry.isIntersecting) {
           entry.target.classList.add("visible");
           io.unobserve(entry.target);
-          // Safety net: on browsers where clip-path transitions misbehave,
-          // force the final revealed state so the photo can never stay hidden.
-          if (entry.target.classList.contains("reveal-clip")) {
-            (function (el) {
-              setTimeout(function () {
-                var cp = "";
-                try { cp = window.getComputedStyle(el).clipPath; } catch (e) {}
-                if (cp && cp.indexOf("100%") !== -1) el.style.clipPath = "inset(0% 0% 0% 0%)";
-              }, 1400);
-            })(entry.target);
-          }
         }
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
     revealEls.forEach(function (el) { io.observe(el); });
     // Philosophy quote: its words (.wi) rise when the quote itself is revealed
     document.querySelectorAll(".statement-quote").forEach(function (el) { io.observe(el); });
+
+    /* Clip-path photo reveals (.about-photo, .contact-photo): the figure itself
+       is clipped to zero visible area, which IntersectionObserver can treat as
+       never intersecting — a deadlock where the reveal trigger never fires.
+       So observe the un-clipped parent grid and reveal the figure from there. */
+    document.querySelectorAll(".reveal-clip").forEach(function (fig) {
+      var trigger = fig.parentElement || fig;
+      var done = false;
+      function showFig() {
+        if (done) return;
+        done = true;
+        fig.classList.add("visible");
+        // Safety net: force the final clip state if the transition misbehaves
+        setTimeout(function () {
+          var cp = "";
+          try { cp = window.getComputedStyle(fig).clipPath; } catch (e) {}
+          if (cp && cp.indexOf("100%") !== -1) fig.style.clipPath = "inset(0% 0% 0% 0%)";
+        }, 1400);
+      }
+      var clipIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { showFig(); clipIO.unobserve(trigger); }
+        });
+      }, { threshold: 0.06, rootMargin: "0px 0px -30px 0px" });
+      clipIO.observe(trigger);
+    });
   } else {
     revealEls.forEach(function (el) { el.classList.add("visible"); });
     document.querySelectorAll(".statement-quote").forEach(function (el) { el.classList.add("visible"); });
+    document.querySelectorAll(".reveal-clip").forEach(function (el) { el.classList.add("visible"); });
   }
+
+  /* Last resort: a few seconds after load, reveal anything still stuck while
+     sitting in or near the viewport, no observer needed. */
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      var vh = window.innerHeight;
+      document.querySelectorAll(".reveal:not(.visible)").forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.bottom > -120 && r.top < vh + 120) el.classList.add("visible");
+      });
+    }, 3000);
+  });
 
   /* ---------- Scroll: header, progress, parallax, hide-on-down ---------- */
   var header = document.getElementById("siteHeader");
