@@ -201,8 +201,13 @@ section[id] { scroll-margin-top: 70px; }
   animation: goldShimmer 7s linear infinite;
 }
 @keyframes goldShimmer { to { background-position: 220% center; } }
-.hero-sub { margin: 26px 0 0; font-size: clamp(13px, 1.6vw, 16px); letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
-.hero-sub .sep { color: var(--gold); margin: 0 10px; }
+.hero-sub { display: flex; flex-wrap: wrap; column-gap: 30px; row-gap: 12px; margin: 28px 0 0; }
+.hs-group {
+  display: inline-flex; align-items: center; gap: 30px; white-space: nowrap;
+  font-size: clamp(12px, 1.5vw, 15px); font-weight: 500; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--text); text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+}
+.hero-sub .sep { color: var(--gold); font-size: 0.7em; font-style: normal; text-shadow: 0 0 14px rgba(212, 165, 55, 0.65); }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 38px; }
 .scroll-hint {
   position: absolute; right: 4.5%; bottom: 0; z-index: 2;
@@ -215,18 +220,25 @@ section[id] { scroll-margin-top: 70px; }
 @keyframes hintDrop { 0% { top: -40%; } 100% { top: 110%; } }
 
 /* Hero load choreography */
-.js .hero-badge, .js .hero-eyebrow, .js .ht-line > span, .js .hero-sub, .js .hero-ctas, .js .scroll-hint { opacity: 0; }
-.js .hero-badge, .js .hero-eyebrow, .js .hero-sub, .js .hero-ctas { transform: translateY(30px); }
+.js .hero-badge, .js .hero-eyebrow, .js .ht-line > span, .js .hero-ctas, .js .scroll-hint { opacity: 0; }
+.js .hero-badge, .js .hero-eyebrow, .js .hero-ctas { transform: translateY(30px); }
+.js .hs-group { opacity: 0; transform: translateY(16px); }
 .js .ht-line > span { transform: translateY(112%); }
 .js .hero-figure img { transform: scale(1.22); }
-.js body.loaded .hero-badge, .js body.loaded .hero-eyebrow, .js body.loaded .hero-sub, .js body.loaded .hero-ctas, .js body.loaded .scroll-hint { opacity: 1; transform: none; transition: opacity 1s var(--ease), transform 1s var(--ease); }
+.js body.loaded .hero-badge, .js body.loaded .hero-eyebrow, .js body.loaded .hero-ctas, .js body.loaded .scroll-hint { opacity: 1; transform: none; transition: opacity 1s var(--ease), transform 1s var(--ease); }
+.js body.loaded .hs-group { opacity: 1; transform: none; transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+.js body.loaded .hs-group:first-child { transition-delay: 0.66s; }
+.js body.loaded .hs-group:last-child { transition-delay: 0.8s; }
 .js body.loaded .ht-line > span { opacity: 1; transform: translateY(0); transition: transform 1.15s var(--ease), opacity 0.6s; }
 .js body.loaded .hero-figure img { transform: scale(1.08); transition: transform 2.4s var(--ease); }
+
+/* Slow cinematic "breathe" — keeps the hero alive after load */
+@keyframes heroBreathe { from { transform: scale(1); } to { transform: scale(1.055); } }
+.js body.loaded .hero-bg { animation: heroBreathe 26s ease-in-out 3s infinite alternate; }
 .js body.loaded .hero-badge { transition-delay: 0.05s; }
 .js body.loaded .hero-eyebrow { transition-delay: 0.15s; }
 .js body.loaded .ht-line:nth-child(1) > span, .js body.loaded .hero-title .ht-line:first-child > span { transition-delay: 0.28s; }
 .js body.loaded .hero-title .ht-line:last-child > span { transition-delay: 0.42s; }
-.js body.loaded .hero-sub { transition-delay: 0.62s; }
 .js body.loaded .hero-ctas { transition-delay: 0.76s; }
 .js body.loaded .scroll-hint { transition-delay: 1s; }
 
@@ -491,7 +503,7 @@ section[id] { scroll-margin-top: 70px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-  .js .hero-badge, .js .hero-eyebrow, .js .ht-line > span, .js .hero-sub, .js .hero-ctas, .js .scroll-hint { opacity: 1; transform: none; }
+  .js .hero-badge, .js .hero-eyebrow, .js .ht-line > span, .js .hs-group, .js .hero-ctas, .js .scroll-hint { opacity: 1; transform: none; }
   .js .hero-figure img { transform: scale(1.08); }
   .reveal { opacity: 1; transform: none; }
   .reveal.reveal-clip { clip-path: none; }
