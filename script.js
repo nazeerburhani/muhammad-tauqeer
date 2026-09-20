@@ -110,6 +110,17 @@
         if (entry.isIntersecting) {
           entry.target.classList.add("visible");
           io.unobserve(entry.target);
+          // Safety net: on browsers where clip-path transitions misbehave,
+          // force the final revealed state so the photo can never stay hidden.
+          if (entry.target.classList.contains("reveal-clip")) {
+            (function (el) {
+              setTimeout(function () {
+                var cp = "";
+                try { cp = window.getComputedStyle(el).clipPath; } catch (e) {}
+                if (cp && cp.indexOf("100%") !== -1) el.style.clipPath = "inset(0% 0% 0% 0%)";
+              }, 1400);
+            })(entry.target);
+          }
         }
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
@@ -230,17 +241,24 @@
   function closeMenu() {
     mobileMenu.classList.remove("open");
     toggle.classList.remove("open");
+    header.classList.remove("menu-open");
     toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Open menu");
     document.body.style.overflow = "";
   }
   toggle.addEventListener("click", function () {
     var open = mobileMenu.classList.toggle("open");
     toggle.classList.toggle("open", open);
+    header.classList.toggle("menu-open", open);
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     document.body.style.overflow = open ? "hidden" : "";
   });
   mobileMenu.querySelectorAll("a").forEach(function (a) {
     a.addEventListener("click", closeMenu);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && mobileMenu.classList.contains("open")) closeMenu();
   });
 
   /* ---------- Scrollspy ---------- */
