@@ -125,8 +125,11 @@
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
     revealEls.forEach(function (el) { io.observe(el); });
+    // Philosophy quote: its words (.wi) rise when the quote itself is revealed
+    document.querySelectorAll(".statement-quote").forEach(function (el) { io.observe(el); });
   } else {
     revealEls.forEach(function (el) { el.classList.add("visible"); });
+    document.querySelectorAll(".statement-quote").forEach(function (el) { el.classList.add("visible"); });
   }
 
   /* ---------- Scroll: header, progress, parallax, hide-on-down ---------- */

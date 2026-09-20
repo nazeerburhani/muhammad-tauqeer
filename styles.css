@@ -258,6 +258,8 @@ section[id] { scroll-margin-top: 70px; }
 .w { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.1em; margin-bottom: -0.1em; }
 .wi { display: inline-block; transform: translateY(112%); will-change: transform; }
 .section-title.visible .wi { transform: translateY(0); transition: transform 0.8s var(--ease); transition-delay: calc(var(--i, 0) * 75ms); }
+/* Philosophy quote words rise the same way once the quote is revealed */
+.statement-quote.visible .wi { transform: translateY(0); transition: transform 0.9s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
 
 /* ---------- Reveal system ---------- */
 .reveal { opacity: 0; transform: translateY(38px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); will-change: opacity, transform; }
